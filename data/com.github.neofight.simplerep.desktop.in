@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Simple Rep
+GenericName=SRS Tool
+Comment=Memorise information efficiently using spaced repetition
+Categories=Education;Languages
+Exec=com.github.neofight.simplerep
+Icon=application-default-icon
+Terminal=false
+Type=application
+Keywords=SRS;Flash;Cards;Repetition;Memory;Language

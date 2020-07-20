@@ -1,0 +1,4 @@
+src/Application.vala
+src/MainWindow.vala
+data/com.github.neofight.simplerep.desktop.in
+data/com.github.neofight.simplerep.appdata.xml.in

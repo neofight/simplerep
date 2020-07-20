@@ -1,0 +1,56 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the com.github.neofight.simplerep package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: com.github.neofight.simplerep\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-19 09:25+0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/MainWindow.vala:26 src/MainWindow.vala:31
+#: data/com.github.neofight.simplerep.desktop.in:3
+#: data/com.github.neofight.simplerep.appdata.xml.in:6
+msgid "Simple Rep"
+msgstr ""
+
+#: src/MainWindow.vala:35
+msgid "Starting Learning"
+msgstr ""
+
+#: src/MainWindow.vala:36
+msgid "Create your first card deck."
+msgstr ""
+
+#: data/com.github.neofight.simplerep.desktop.in:4
+msgid "SRS Tool"
+msgstr ""
+
+#: data/com.github.neofight.simplerep.desktop.in:5
+#: data/com.github.neofight.simplerep.appdata.xml.in:7
+msgid "Memorise information efficiently using spaced repetition"
+msgstr ""
+
+#: data/com.github.neofight.simplerep.desktop.in:8
+msgid "application-default-icon"
+msgstr ""
+
+#: data/com.github.neofight.simplerep.desktop.in:11
+msgid "SRS;Flash;Cards;Repetition;Memory;Language"
+msgstr ""
+
+#: data/com.github.neofight.simplerep.appdata.xml.in:9
+msgid ""
+"Simple Rep is a simple but powerful flashcard tool designed for learning "
+"languages (although it can be used for other content too). The use of text "
+"and audio together along with spaced repition maximises retention."
+msgstr ""
