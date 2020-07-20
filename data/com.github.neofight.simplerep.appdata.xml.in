@@ -6,7 +6,7 @@
   <name>Simple Rep</name>
   <summary>Memorise information efficiently using spaced repetition</summary>
   <description>
-    <p>Simple Rep is a simple but powerful flashcard tool designed for learning languages (although it can be used for other content too). The use of text and audio together along with spaced repition maximises retention.</p>
+    <p>Simple Rep is a simple but powerful flashcard tool designed for learning languages (although it can be used for other content too). The use of text and audio together along with spaced repetition maximises retention.</p>
   </description>
   <custom>
     <value key="x-appcenter-suggested-price">5</value>
