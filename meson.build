@@ -21,6 +21,8 @@ executable(
     install: true
 )
 
+run_target('lint', command : ['io.elementary.vala-lint', '-d', meson.source_root()])
+
 i18n.merge_file(
     input: join_paths('data', meson.project_name() + '.desktop.in'),
     output: meson.project_name() + '.desktop',
