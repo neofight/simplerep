@@ -16,5 +16,10 @@
       <summary>Window size</summary>
       <description>Most recent window size (width, height)</description>
     </key>
+    <key name="divider-position" type="i">
+      <default>150</default>
+      <summary>Divider position</summary>
+      <description>Most recent divider position (position)</description> 
+    </key>
   </schema>
 </schemalist>

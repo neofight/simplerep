@@ -21,7 +21,9 @@
 
 public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
-    private uint configure_id;
+    private SimpleRep.ThrottledEvent resize_event = new SimpleRep.ThrottledEvent ();
+    private Granite.Widgets.SourceList deck_list;
+    private SimpleRep.ThrottledEvent position_event = new SimpleRep.ThrottledEvent ();
 
     public MainWindow (Gtk.Application application) {
         Object (
@@ -38,23 +40,33 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
         header_bar.pack_start (add_button);
 
+        deck_list = new Granite.Widgets.SourceList ();
+
         var welcome_screen = new Granite.Widgets.Welcome (
             _("Start Learning"),
             _("Create your first card deck.")
         );
 
+        var stack = new Gtk.Stack ();
+
+        stack.add (welcome_screen);
+
+        var paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
+        paned.position = SimpleRep.Application.settings.get_int ("divider-position");
+        paned.pack1 (deck_list, false, false);
+        paned.pack2 (stack, true, false);
+
         set_titlebar (header_bar);
-        add (welcome_screen);
-    }
+        add (paned);
 
-    public override bool configure_event (Gdk.EventConfigure event) {
-        if (configure_id != 0) {
-            GLib.Source.remove (configure_id);
-        }
+        add_button.clicked.connect (create_new_deck);
 
-        configure_id = Timeout.add (100, () => {
-            configure_id = 0;
+        paned.notify["position"].connect (position_event.emit);
+        position_event.emitted.connect (() => {
+                SimpleRep.Application.settings.set_int ("divider-position", paned.position);
+        });
 
+        resize_event.emitted.connect (() => {
             if (is_maximized) {
                 SimpleRep.Application.settings.set_boolean ("window-maximized", true);
             } else {
@@ -68,10 +80,24 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
                 get_allocation (out rect);
                 SimpleRep.Application.settings.set ("window-size", "(ii)", rect.width, rect.height);
             }
-
-            return false;
         });
+    }
 
+    public override bool configure_event (Gdk.EventConfigure event) {
+        resize_event.emit ();
         return base.configure_event (event);
+    }
+
+    private void create_new_deck () {
+        var deck_icon = new GLib.ThemedIcon ("folder");
+
+        var deck_item = new SimpleRep.DeckItem (deck_list, _("untitled")) {
+            editable = true,
+            icon = deck_icon,
+            selectable = true
+        };
+
+        deck_list.root.add (deck_item);
+        deck_list.start_editing_item (deck_item);
     }
 }

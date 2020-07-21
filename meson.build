@@ -6,7 +6,9 @@ add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()), lan
 
 vala_files = files(
     'src/Application.vala',
-    'src/MainWindow.vala'
+    'src/DeckItem.vala',
+    'src/MainWindow.vala',
+    'src/ThrottledEvent.vala'
 )
 
 executable(
