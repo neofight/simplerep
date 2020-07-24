@@ -21,18 +21,25 @@
 
 public class SimpleRep.DeckItem : Granite.Widgets.SourceList.Item {
 
-    private Granite.Widgets.SourceList deck_list;
+    private SimpleRep.DeckList deck_list;
 
-    public DeckItem (Granite.Widgets.SourceList deck_list, string name) {
+    public SimpleRep.Deck deck;
+
+    public DeckItem (SimpleRep.DeckList deck_list, SimpleRep.Deck deck) {
+        var deck_icon = new GLib.ThemedIcon ("folder");
+
         Object (
-            name: name
+            name: deck.name,
+            editable: true,
+            icon: deck_icon,
+            selectable: true
         );
 
         this.deck_list = deck_list;
+        this.deck = deck;
     }
 
     public override Gtk.Menu? get_context_menu () {
-
         var rename_item = new Gtk.MenuItem.with_label (_("Rename"));
         rename_item.activate.connect (() => {
             deck_list.start_editing_item (this);
@@ -40,7 +47,7 @@ public class SimpleRep.DeckItem : Granite.Widgets.SourceList.Item {
 
         var delete_item = new Gtk.MenuItem.with_label (_("Delete"));
         delete_item.activate.connect (() => {
-            deck_list.root.remove (this);
+            deck_list.remove_deck (this);
         });
 
         var menu = new Gtk.Menu ();

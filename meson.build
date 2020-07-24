@@ -5,8 +5,11 @@ i18n = import('i18n')
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()), language:'c')
 
 vala_files = files(
+    'src/model/Deck.vala',
+    'src/widgets/DeckItem.vala',
+    'src/widgets/DeckList.vala',
     'src/Application.vala',
-    'src/DeckItem.vala',
+    'src/Database.vala',
     'src/MainWindow.vala',
     'src/ThrottledEvent.vala'
 )
@@ -16,7 +19,8 @@ executable(
     vala_files,
     dependencies: [
         dependency('granite'),
-        dependency('gtk+-3.0')
+        dependency('gtk+-3.0'),
+        dependency('sqlite3'),
     ],
     install: true
 )

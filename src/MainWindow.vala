@@ -21,8 +21,11 @@
 
 public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
+    private static SimpleRep.MainWindow instance;
+
+    private SimpleRep.Database database;
     private SimpleRep.ThrottledEvent resize_event = new SimpleRep.ThrottledEvent ();
-    private Granite.Widgets.SourceList deck_list;
+    private SimpleRep.DeckList deck_list;
     private SimpleRep.ThrottledEvent position_event = new SimpleRep.ThrottledEvent ();
 
     public MainWindow (Gtk.Application application) {
@@ -30,6 +33,9 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
             application: application,
             title: _("Simple Rep")
         );
+
+        instance = this;
+        database = new SimpleRep.Database ();
 
         var add_button = new Gtk.Button.from_icon_name ("folder-new");
 
@@ -40,7 +46,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
         header_bar.pack_start (add_button);
 
-        deck_list = new Granite.Widgets.SourceList ();
+        deck_list = new SimpleRep.DeckList (database);
 
         var welcome_screen = new Granite.Widgets.Welcome (
             _("Start Learning"),
@@ -59,7 +65,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         set_titlebar (header_bar);
         add (paned);
 
-        add_button.clicked.connect (create_new_deck);
+        add_button.clicked.connect (deck_list.add_deck);
 
         paned.notify["position"].connect (position_event.emit);
         position_event.emitted.connect (() => {
@@ -83,21 +89,19 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         });
     }
 
+    public static void panic (string message) {
+        var dialog = new Granite.MessageDialog.with_image_from_icon_name (
+            _("Fatal Error"),
+            message,
+            "dialog-error");
+        dialog.transient_for = instance;
+        dialog.run ();
+        dialog.destroy ();
+        Process.exit (1);
+    }
+
     public override bool configure_event (Gdk.EventConfigure event) {
         resize_event.emit ();
         return base.configure_event (event);
-    }
-
-    private void create_new_deck () {
-        var deck_icon = new GLib.ThemedIcon ("folder");
-
-        var deck_item = new SimpleRep.DeckItem (deck_list, _("untitled")) {
-            editable = true,
-            icon = deck_icon,
-            selectable = true
-        };
-
-        deck_list.root.add (deck_item);
-        deck_list.start_editing_item (deck_item);
     }
 }
