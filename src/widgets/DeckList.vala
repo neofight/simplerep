@@ -23,6 +23,8 @@ public class SimpleRep.DeckList : Granite.Widgets.SourceList {
 
     private SimpleRep.Database db;
 
+    public signal void item_renamed (Deck deck);
+
     public DeckList (SimpleRep.Database db) {
         this.db = db;
 
@@ -67,5 +69,7 @@ public class SimpleRep.DeckList : Granite.Widgets.SourceList {
         var deck = deck_item.deck;
         deck.name = name;
         db.save_deck (deck);
+
+        item_renamed (deck);
     }
 }
