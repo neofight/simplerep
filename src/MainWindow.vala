@@ -27,6 +27,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     private SimpleRep.ThrottledEvent resize_event = new SimpleRep.ThrottledEvent ();
     private SimpleRep.DeckList deck_list;
     private SimpleRep.ThrottledEvent position_event = new SimpleRep.ThrottledEvent ();
+    private Gtk.Stack stack;
 
     public MainWindow (Gtk.Application application) {
         Object (
@@ -47,15 +48,11 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         header_bar.pack_start (add_button);
 
         deck_list = new SimpleRep.DeckList (database);
+        deck_list.root.child_added.connect (deck_count_changed);
+        deck_list.root.child_removed.connect (deck_count_changed);
 
-        var welcome_screen = new Granite.Widgets.Welcome (
-            _("Start Learning"),
-            _("Create your first card deck.")
-        );
-
-        var stack = new Gtk.Stack ();
-
-        stack.add (welcome_screen);
+        stack = new Gtk.Stack ();
+        deck_count_changed ();
 
         var paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
         paned.position = SimpleRep.Application.settings.get_int ("divider-position");
@@ -103,5 +100,26 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     public override bool configure_event (Gdk.EventConfigure event) {
         resize_event.emit ();
         return base.configure_event (event);
+    }
+
+    public void deck_count_changed () {
+        if (deck_list.root.n_children != 0) {
+            var welcome_screen = stack.get_child_by_name ("no_decks");
+
+            if (welcome_screen != null) {
+                stack.remove (welcome_screen);
+            }
+
+            return;
+        };
+
+        var welcome_screen = new Granite.Widgets.Welcome (
+            _("Start Learning"),
+            _("Create your first card deck.")
+        );
+        welcome_screen.show_all ();
+
+        stack.add_named (welcome_screen, "no_decks");
+        stack.visible_child_name = "no_decks";
     }
 }
