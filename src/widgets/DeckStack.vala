@@ -34,10 +34,7 @@ public class SimpleRep.DeckStack : Gtk.Stack {
     }
 
     public void add_deck (SimpleRep.Deck deck) {
-        var welcome_screen = new Granite.Widgets.Welcome (
-            deck.name,
-            _("Create your first card.")
-        );
+        var welcome_screen = new SimpleRep.DeckView (deck);
         welcome_screen.show_all ();
 
         add_named (welcome_screen, deck.id.to_string ());
@@ -61,7 +58,7 @@ public class SimpleRep.DeckStack : Gtk.Stack {
     }
 
     public void update_deck (SimpleRep.Deck deck) {
-        var welcome_screen = (Granite.Widgets.Welcome)get_child_by_name (deck.id.to_string ());
+        var welcome_screen = (SimpleRep.DeckView)get_child_by_name (deck.id.to_string ());
         welcome_screen.title = deck.name;
     }
 

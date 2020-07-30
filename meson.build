@@ -9,6 +9,7 @@ vala_files = files(
     'src/widgets/DeckItem.vala',
     'src/widgets/DeckList.vala',
     'src/widgets/DeckStack.vala',
+    'src/widgets/DeckView.vala',
     'src/Application.vala',
     'src/Database.vala',
     'src/MainWindow.vala',
