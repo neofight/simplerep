@@ -60,7 +60,7 @@ public class SimpleRep.DeckView : Gtk.Box {
         stack_switcher.halign = Gtk.Align.CENTER;
         stack_switcher.margin = 12;
 
-        add(stack_switcher);
-        add(stack);
+        add (stack_switcher);
+        add (stack);
     }
 }
