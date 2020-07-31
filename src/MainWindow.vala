@@ -38,7 +38,8 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         instance = this;
         database = new SimpleRep.Database ();
 
-        var add_button = new Gtk.Button.from_icon_name ("folder-new");
+        var add_button = new Gtk.Button.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR);
+        add_button.valign = Gtk.Align.CENTER;
 
         var header_bar = new Gtk.HeaderBar () {
             show_close_button = true,
