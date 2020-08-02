@@ -37,23 +37,21 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
         instance = this;
         database = new SimpleRep.Database ();
+        var decks = database.get_decks ();
 
-        var add_button = new Gtk.Button.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR);
-        add_button.valign = Gtk.Align.CENTER;
-
-        var header_bar = new Gtk.HeaderBar () {
-            show_close_button = true,
-            title = _("Simple Rep")
+        var header_bar = new SimpleRep.HeaderBar () {
+            can_add_card = decks.size > 0
         };
 
-        header_bar.pack_start (add_button);
-
         deck_list = new SimpleRep.DeckList (database);
-        stack = new SimpleRep.DeckStack (database.get_decks ());
+        stack = new SimpleRep.DeckStack (decks);
         deck_list.item_renamed.connect ((deck) => { stack.update_deck (deck); });
         deck_list.item_selected.connect ((item) => { stack.show_deck (((SimpleRep.DeckItem)item).deck); });
         deck_list.root.child_added.connect ((item) => { stack.add_deck (((SimpleRep.DeckItem)item).deck); });
         deck_list.root.child_removed.connect ((item) => { stack.remove_deck (((SimpleRep.DeckItem)item).deck); });
+
+        deck_list.root.child_added.connect (() => { header_bar.can_add_card = true; });
+        deck_list.root.child_removed.connect (() => { header_bar.can_add_card = (deck_list.root.n_children > 0); });
 
         var paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
         paned.position = SimpleRep.Application.settings.get_int ("divider-position");
@@ -63,7 +61,8 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         set_titlebar (header_bar);
         add (paned);
 
-        add_button.clicked.connect (deck_list.add_deck);
+        header_bar.add_deck_clicked.connect (deck_list.add_deck);
+        header_bar.add_card_clicked.connect (create_card);
 
         paned.notify["position"].connect (position_event.emit);
         position_event.emitted.connect (() => {
@@ -101,5 +100,17 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     public override bool configure_event (Gdk.EventConfigure event) {
         resize_event.emit ();
         return base.configure_event (event);
+    }
+
+    private void create_card () {
+        var deck_id = ((SimpleRep.DeckItem)deck_list.selected).deck.id;
+
+        var dialog = new SimpleRep.CardDialog (this, deck_id);
+        dialog.card_created.connect ((card) => {
+            database.add_card (card);
+        });
+
+        dialog.show_all ();
+        dialog.present ();
     }
 }

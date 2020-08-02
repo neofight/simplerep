@@ -46,6 +46,23 @@ public class SimpleRep.Database {
         init ();
     }
 
+    public void add_card (SimpleRep.Card card) {
+        const string SQL = "INSERT INTO cards (deck_id, front, back) VALUES (?, ?, ?);";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, card.deck_id);
+        stmt.bind_text (2, card.front);
+        stmt.bind_text (3, card.back);
+
+        var result = stmt.step ();
+
+        if (result != Sqlite.DONE) {
+            SimpleRep.MainWindow.panic ("Unable to add card to database: " + db.errmsg ());
+        }
+
+        card.id = db.last_insert_rowid ();
+    }
+
     public void add_deck (SimpleRep.Deck deck) {
         const string SQL = "INSERT INTO decks (name) VALUES (?);";
 
@@ -113,15 +130,38 @@ public class SimpleRep.Database {
     }
 
     private void init () {
-        const string SQL = """
+        var result = db.exec ("PRAGMA foreign_keys = ON;");
+
+        if (result != Sqlite.OK) {
+            SimpleRep.MainWindow.panic ("A database error occured: " + db.errmsg ());
+        }
+
+        var sql = """
             CREATE TABLE IF NOT EXISTS Decks (
                 id INTEGER PRIMARY KEY,
                 name TEXT NOT NULL
             );""";
 
-        var stmt = prepare (SQL);
+        var stmt = prepare (sql);
 
-        var result = stmt.step ();
+        result = stmt.step ();
+
+        if (result != Sqlite.DONE) {
+            SimpleRep.MainWindow.panic ("Unable to initialise database: " + db.errmsg ());
+        }
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS cards (
+                id INTEGER PRIMARY KEY,
+                deck_id INTEGER NOT NULL,
+                front TEXT NOT NULL,
+                back TEXT NOT NULL,
+                FOREIGN KEY(deck_id) REFERENCES decks(id)
+            );""";
+
+        stmt = prepare (sql);
+
+        result = stmt.step ();
 
         if (result != Sqlite.DONE) {
             SimpleRep.MainWindow.panic ("Unable to initialise database: " + db.errmsg ());
