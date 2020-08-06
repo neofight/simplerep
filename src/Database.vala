@@ -23,6 +23,8 @@ public class SimpleRep.Database {
 
     private Sqlite.Database db;
 
+    public signal void card_added (SimpleRep.Card card);
+
     public Database () {
         var data_path = Path.build_filename (Environment.get_user_data_dir (), "com.github.neofight.simplerep");
 
@@ -61,6 +63,8 @@ public class SimpleRep.Database {
         }
 
         card.id = db.last_insert_rowid ();
+
+        card_added (card);
     }
 
     public void add_deck (SimpleRep.Deck deck) {
@@ -76,6 +80,33 @@ public class SimpleRep.Database {
         }
 
         deck.id = db.last_insert_rowid ();
+    }
+
+    public Gee.ArrayList<SimpleRep.Card> get_cards (Deck deck) {
+        const string SQL = "SELECT id, deck_id, front, back FROM cards WHERE deck_id = ?;";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, deck.id);
+
+        var cards = new Gee.ArrayList<SimpleRep.Card> ();
+
+        while (true) {
+            var result = stmt.step ();
+            if (result == Sqlite.DONE) {
+                break;
+            } else if (result != Sqlite.ROW) {
+                SimpleRep.MainWindow.panic ("Error fetching card record");
+            }
+
+            cards.add (new SimpleRep.Card () {
+                id = stmt.column_int (0),
+                deck_id = stmt.column_int (1),
+                front = stmt.column_text (2),
+                back = stmt.column_text (3)
+            });
+        }
+
+        return cards;
     }
 
     public Gee.ArrayList<SimpleRep.Deck> get_decks () {

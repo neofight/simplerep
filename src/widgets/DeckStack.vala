@@ -21,9 +21,13 @@
 
 public class SimpleRep.DeckStack : Gtk.Stack {
 
+    private SimpleRep.Database db;
     private int decks = 0;
 
-    public DeckStack (Gee.Iterable<SimpleRep.Deck> decks) {
+    public DeckStack (SimpleRep.Database db) {
+        this.db = db;
+        var decks = db.get_decks ();
+
         foreach (var deck in decks) {
             add_deck (deck);
         }
@@ -34,7 +38,7 @@ public class SimpleRep.DeckStack : Gtk.Stack {
     }
 
     public void add_deck (SimpleRep.Deck deck) {
-        var welcome_screen = new SimpleRep.DeckView (deck);
+        var welcome_screen = new SimpleRep.DeckView (deck, db);
         welcome_screen.show_all ();
 
         add_named (welcome_screen, deck.id.to_string ());

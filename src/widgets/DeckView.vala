@@ -29,7 +29,7 @@ public class SimpleRep.DeckView : Gtk.Box {
         }
     }
 
-    public DeckView (Deck deck) {
+    public DeckView (Deck deck, Database db) {
         Object (
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 0
@@ -45,10 +45,7 @@ public class SimpleRep.DeckView : Gtk.Box {
             _("Create your first card.")
         );
 
-        var browse = new Granite.Widgets.Welcome (
-            _("Nothing to browse"),
-            _("Create your first card.")
-        );
+        var browse = new SimpleRep.BrowseView (deck, db);
 
         var stack = new Gtk.Stack ();
         stack.add_titled (summary, "summary", "Summary");

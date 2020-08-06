@@ -8,6 +8,7 @@ vala_files = files(
     'src/dialogs/CardDialog.vala',
     'src/model/Card.vala',
     'src/model/Deck.vala',
+    'src/widgets/BrowseView.vala',
     'src/widgets/DeckItem.vala',
     'src/widgets/DeckList.vala',
     'src/widgets/DeckStack.vala',

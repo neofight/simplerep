@@ -44,7 +44,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
         };
 
         deck_list = new SimpleRep.DeckList (database);
-        stack = new SimpleRep.DeckStack (decks);
+        stack = new SimpleRep.DeckStack (database);
         deck_list.item_renamed.connect ((deck) => { stack.update_deck (deck); });
         deck_list.item_selected.connect ((item) => { stack.show_deck (((SimpleRep.DeckItem)item).deck); });
         deck_list.root.child_added.connect ((item) => { stack.add_deck (((SimpleRep.DeckItem)item).deck); });
