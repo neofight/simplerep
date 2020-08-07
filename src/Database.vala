@@ -24,6 +24,7 @@ public class SimpleRep.Database {
     private Sqlite.Database db;
 
     public signal void card_added (SimpleRep.Card card);
+    public signal void card_removed (int64 card_id);
 
     public Database () {
         var data_path = Path.build_filename (Environment.get_user_data_dir (), "com.github.neofight.simplerep");
@@ -99,8 +100,8 @@ public class SimpleRep.Database {
             }
 
             cards.add (new SimpleRep.Card () {
-                id = stmt.column_int (0),
-                deck_id = stmt.column_int (1),
+                id = stmt.column_int64 (0),
+                deck_id = stmt.column_int64 (1),
                 front = stmt.column_text (2),
                 back = stmt.column_text (3)
             });
@@ -131,6 +132,21 @@ public class SimpleRep.Database {
         }
 
         return decks;
+    }
+
+    public void remove_card (int64 card_id) {
+        const string SQL = "DELETE FROM cards WHERE id = ?;";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, card_id);
+
+        var result = stmt.step ();
+
+        if (result != Sqlite.DONE) {
+            SimpleRep.MainWindow.panic ("Unable to remove card from database: " + db.errmsg ());
+        }
+
+        card_removed (card_id);
     }
 
     public void remove_deck (SimpleRep.Deck deck) {
