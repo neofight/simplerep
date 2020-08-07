@@ -74,6 +74,6 @@ public class SimpleRep.CardDialog : Gtk.Dialog {
     }
 
     private void validate () {
-        create_button.sensitive = front_entry.text.strip().length > 0 && back_entry.text.strip().length > 0;
+        create_button.sensitive = front_entry.text.strip ().length > 0 && back_entry.text.strip ().length > 0;
     }
 }
