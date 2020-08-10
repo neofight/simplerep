@@ -5,7 +5,8 @@ i18n = import('i18n')
 add_global_arguments('-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()), language:'c')
 
 vala_files = files(
-    'src/dialogs/CardDialog.vala',
+    'src/dialogs/CreateCardDialog.vala',
+    'src/dialogs/EditCardDialog.vala',
     'src/model/Card.vala',
     'src/model/Deck.vala',
     'src/widgets/BrowseView.vala',

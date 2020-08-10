@@ -19,15 +19,15 @@
 * Authored by: William Hoggarth <mail@whoggarth.org>
 */
 
-public class SimpleRep.CardDialog : Gtk.Dialog {
+public class SimpleRep.EditCardDialog : Gtk.Dialog {
 
     private Gtk.Entry front_entry;
     private Gtk.Entry back_entry;
-    private Gtk.Button create_button;
+    private Gtk.Button save_button;
 
-    public signal void card_created (SimpleRep.Card card);
+    public signal void card_edited (SimpleRep.Card card);
 
-    public CardDialog (Gtk.Window parent, int64 deck_id) {
+    public EditCardDialog (Gtk.Window parent, SimpleRep.Card card) {
         Object (
             transient_for: parent,
             width_request: 450
@@ -35,10 +35,12 @@ public class SimpleRep.CardDialog : Gtk.Dialog {
 
         var front_label = new Gtk.Label (_("Front"));
         front_entry = new Gtk.Entry ();
+        front_entry.text = card.front;
         front_entry.changed.connect (() => validate ());
 
         var back_label = new Gtk.Label (_("Back"));
         back_entry = new Gtk.Entry ();
+        back_entry.text = card.back;
         back_entry.changed.connect (() => validate ());
 
         var box = new Gtk.Box (Gtk.Orientation.VERTICAL, 12);
@@ -54,19 +56,16 @@ public class SimpleRep.CardDialog : Gtk.Dialog {
 
         add_button (_("Close"), Gtk.ResponseType.CLOSE);
 
-        create_button = (Gtk.Button)add_button (_("Create"), Gtk.ResponseType.OK);
-        create_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
-        create_button.sensitive = false;
+        save_button = (Gtk.Button)add_button (_("Save"), Gtk.ResponseType.OK);
+        save_button.get_style_context ().add_class (Gtk.STYLE_CLASS_SUGGESTED_ACTION);
+        save_button.sensitive = false;
 
         response.connect ((response_id) => {
             if (response_id == Gtk.ResponseType.OK) {
-                var card = new SimpleRep.Card () {
-                    deck_id = deck_id,
-                    front = front_entry.text.strip (),
-                    back = back_entry.text.strip ()
-                };
+                card.front = front_entry.text.strip ();
+                card.back = back_entry.text.strip ();
 
-                card_created (card);
+                card_edited (card);
             }
 
             destroy ();
@@ -74,6 +73,6 @@ public class SimpleRep.CardDialog : Gtk.Dialog {
     }
 
     private void validate () {
-        create_button.sensitive = front_entry.text.strip ().length > 0 && back_entry.text.strip ().length > 0;
+        save_button.sensitive = front_entry.text.strip ().length > 0 && back_entry.text.strip ().length > 0;
     }
 }

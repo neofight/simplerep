@@ -105,7 +105,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     private void create_card () {
         var deck_id = ((SimpleRep.DeckItem)deck_list.selected).deck.id;
 
-        var dialog = new SimpleRep.CardDialog (this, deck_id);
+        var dialog = new SimpleRep.CreateCardDialog (this, deck_id);
         dialog.card_created.connect ((card) => {
             database.add_card (card);
         });

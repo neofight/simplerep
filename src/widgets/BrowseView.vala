@@ -24,6 +24,8 @@ public class SimpleRep.BrowseView : Gtk.TreeView {
     private SimpleRep.Database db;
     private Gtk.ListStore list_store;
 
+    public signal void edit_card_clicked (int64 card_id);
+
     public BrowseView (SimpleRep.Deck deck, SimpleRep.Database db) {
         this.db = db;
         list_store = new Gtk.ListStore (3, typeof (int64), typeof (string), typeof (string));
@@ -55,21 +57,18 @@ public class SimpleRep.BrowseView : Gtk.TreeView {
         });
 
         db.card_removed.connect ((card_id) => {
-            Gtk.TreeIter iter2;
-            Value val;
-
-            if (!list_store.get_iter_first (out iter2)) {
-                return;
+            var iter2 = find_card (card_id);
+            if (iter2 != null) {
+                list_store.remove (ref iter2);
             }
+        });
 
-            do {
-                list_store.get_value (iter2, 0, out val);
-
-                if (val.get_int64 () == card_id) {
-                    list_store.remove (ref iter2);
-                    break;
-                }
-            } while (list_store.iter_next (ref iter2));
+        db.card_saved.connect ((card) => {
+            var iter2 = find_card (card.id);
+            if (iter2 != null) {
+                list_store.set_value (iter2, 1, card.front);
+                list_store.set_value (iter2, 2, card.back);
+            }
         });
     }
 
@@ -97,13 +96,38 @@ public class SimpleRep.BrowseView : Gtk.TreeView {
         return base.button_press_event (event);
     }
 
+    private Gtk.TreeIter? find_card (int64 card_id) {
+        Gtk.TreeIter iter;
+        Value val;
+
+        if (!list_store.get_iter_first (out iter)) {
+            return null;
+        }
+
+        do {
+            list_store.get_value (iter, 0, out val);
+
+            if (val.get_int64 () == card_id) {
+                return iter;
+            }
+        } while (list_store.iter_next (ref iter));
+
+        return null;
+    }
+
     private Gtk.Menu get_context_menu (int64 card_id) {
+        var edit_item = new Gtk.MenuItem.with_label (_("Edit"));
+        edit_item.activate.connect (() => {
+            edit_card_clicked (card_id);
+        });
+
         var delete_item = new Gtk.MenuItem.with_label (_("Delete"));
         delete_item.activate.connect (() => {
             db.remove_card (card_id);
         });
 
         var menu = new Gtk.Menu ();
+        menu.append (edit_item);
         menu.append (delete_item);
         menu.show_all ();
         return menu;

@@ -25,6 +25,7 @@ public class SimpleRep.Database {
 
     public signal void card_added (SimpleRep.Card card);
     public signal void card_removed (int64 card_id);
+    public signal void card_saved (SimpleRep.Card card);
 
     public Database () {
         var data_path = Path.build_filename (Environment.get_user_data_dir (), "com.github.neofight.simplerep");
@@ -81,6 +82,25 @@ public class SimpleRep.Database {
         }
 
         deck.id = db.last_insert_rowid ();
+    }
+
+    public SimpleRep.Card get_card (int64 card_id) {
+        const string SQL = "SELECT id, deck_id, front, back FROM cards WHERE id = ?;";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, card_id);
+
+        var result = stmt.step ();
+        if (result != Sqlite.ROW) {
+            SimpleRep.MainWindow.panic ("Error fetching card record");
+        }
+
+        return new SimpleRep.Card () {
+            id = stmt.column_int64 (0),
+            deck_id = stmt.column_int64 (1),
+            front = stmt.column_text (2),
+            back = stmt.column_text (3)
+        };
     }
 
     public Gee.ArrayList<SimpleRep.Card> get_cards (Deck deck) {
@@ -160,6 +180,24 @@ public class SimpleRep.Database {
         if (result != Sqlite.DONE) {
             SimpleRep.MainWindow.panic ("Unable to remove deck from database: " + db.errmsg ());
         }
+    }
+
+    public void save_card (SimpleRep.Card card) {
+        const string SQL = "UPDATE cards SET deck_id = ?, front = ?, back = ? WHERE id = ?;";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, card.deck_id);
+        stmt.bind_text (2, card.front);
+        stmt.bind_text (3, card.back);
+        stmt.bind_int64 (4, card.id);
+
+        var result = stmt.step ();
+
+        if (result != Sqlite.DONE) {
+            SimpleRep.MainWindow.panic ("Unable to save card to database: " + db.errmsg ());
+        }
+
+        card_saved (card);
     }
 
     public void save_deck (SimpleRep.Deck deck) {

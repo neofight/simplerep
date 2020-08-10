@@ -21,6 +21,7 @@
 
 public class SimpleRep.DeckView : Gtk.Box {
 
+    private SimpleRep.Database db;
     private Granite.Widgets.Welcome summary;
 
     public string title {
@@ -35,6 +36,8 @@ public class SimpleRep.DeckView : Gtk.Box {
             spacing: 0
         );
 
+        this.db = db;
+
         summary = new Granite.Widgets.Welcome (
             deck.name,
             _("Create your first card.")
@@ -46,6 +49,7 @@ public class SimpleRep.DeckView : Gtk.Box {
         );
 
         var browse = new SimpleRep.BrowseView (deck, db);
+        browse.edit_card_clicked.connect (edit_card);
 
         var stack = new Gtk.Stack ();
         stack.add_titled (summary, "summary", "Summary");
@@ -59,5 +63,17 @@ public class SimpleRep.DeckView : Gtk.Box {
 
         add (stack_switcher);
         add (stack);
+    }
+
+    private void edit_card (int64 card_id) {
+        var card = db.get_card (card_id);
+
+        var dialog = new SimpleRep.EditCardDialog ((Gtk.Window)get_toplevel (), card);
+        dialog.card_edited.connect ((card) => {
+            db.save_card (card);
+        });
+
+        dialog.show_all ();
+        dialog.present ();
     }
 }
