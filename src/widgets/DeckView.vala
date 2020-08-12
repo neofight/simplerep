@@ -43,17 +43,11 @@ public class SimpleRep.DeckView : Gtk.Box {
             _("Create your first card.")
         );
 
-        var study = new Granite.Widgets.Welcome (
-            _("Nothing to study"),
-            _("Create your first card.")
-        );
-
         var browse = new SimpleRep.BrowseView (deck, db);
         browse.edit_card_clicked.connect (edit_card);
 
         var stack = new Gtk.Stack ();
         stack.add_titled (summary, "summary", "Summary");
-        stack.add_titled (study, "study", "Study");
         stack.add_titled (browse, "browse", "Browse");
 
         var stack_switcher = new Gtk.StackSwitcher ();
