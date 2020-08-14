@@ -27,6 +27,8 @@ public class SimpleRep.Database {
     public signal void card_removed (int64 card_id);
     public signal void card_saved (SimpleRep.Card card);
 
+    public signal void deck_updated (SimpleRep.Deck deck);
+
     public Database () {
         var data_path = Path.build_filename (Environment.get_user_data_dir (), "com.github.neofight.simplerep");
 
@@ -67,6 +69,7 @@ public class SimpleRep.Database {
         card.id = db.last_insert_rowid ();
 
         card_added (card);
+        deck_updated (get_deck (card.deck_id));
     }
 
     public void add_deck (SimpleRep.Deck deck) {
@@ -130,8 +133,30 @@ public class SimpleRep.Database {
         return cards;
     }
 
+    public SimpleRep.Deck get_deck (int64 deck_id) {
+        const string SQL = """
+            SELECT d.id, d.name, count(*) AS cards_total FROM decks d JOIN cards c ON d.id = c.deck_id 
+            HERE d.id = ? GROUP BY d.id;""";
+
+        var stmt = prepare (SQL);
+        stmt.bind_int64 (1, deck_id);
+
+        var result = stmt.step ();
+        if (result != Sqlite.ROW) {
+            SimpleRep.MainWindow.panic ("Error fetching deck record");
+        }
+
+        return new SimpleRep.Deck () {
+            id = stmt.column_int (0),
+            name = stmt.column_text (1),
+            cards_total = stmt.column_int (2)
+        };
+    }
+
     public Gee.ArrayList<SimpleRep.Deck> get_decks () {
-        const string SQL = "SELECT id, name FROM decks;";
+        const string SQL = """
+            SELECT d.id, d.name, count(*) AS cards_total FROM decks d JOIN cards c ON d.id = c.deck_id
+            GROUP BY d.id;""";
 
         var stmt = prepare (SQL);
 
@@ -147,7 +172,8 @@ public class SimpleRep.Database {
 
             decks.add (new SimpleRep.Deck () {
                 id = stmt.column_int (0),
-                name = stmt.column_text (1)
+                name = stmt.column_text (1),
+                cards_total = stmt.column_int (2)
             });
         }
 
@@ -155,6 +181,8 @@ public class SimpleRep.Database {
     }
 
     public void remove_card (int64 card_id) {
+        var card = get_card (card_id);
+
         const string SQL = "DELETE FROM cards WHERE id = ?;";
 
         var stmt = prepare (SQL);
@@ -167,6 +195,7 @@ public class SimpleRep.Database {
         }
 
         card_removed (card_id);
+        deck_updated (get_deck (card.deck_id));
     }
 
     public void remove_deck (SimpleRep.Deck deck) {
@@ -212,6 +241,8 @@ public class SimpleRep.Database {
         if (result != Sqlite.DONE) {
             SimpleRep.MainWindow.panic ("Unable to save deck to database: " + db.errmsg ());
         }
+
+        deck_updated (deck);
     }
 
     private void init () {

@@ -22,4 +22,7 @@
 public class SimpleRep.Deck {
     public int64? id {get; set;}
     public string name {get; set;}
+    public int cards_total { get; set; }
+    public int cards_new { get; set; }
+    public int cards_due { get; set; }
 }

@@ -38,10 +38,7 @@ public class SimpleRep.DeckView : Gtk.Box {
 
         this.db = db;
 
-        summary = new Granite.Widgets.Welcome (
-            deck.name,
-            _("Create your first card.")
-        );
+        summary = new SimpleRep.SummaryView (deck, db);
 
         var browse = new SimpleRep.BrowseView (deck, db);
         browse.edit_card_clicked.connect (edit_card);
