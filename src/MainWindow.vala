@@ -24,10 +24,8 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     private static SimpleRep.MainWindow instance;
 
     private SimpleRep.Database database;
+    private SimpleRep.MainView main_view;
     private SimpleRep.ThrottledEvent resize_event = new SimpleRep.ThrottledEvent ();
-    private SimpleRep.DeckList deck_list;
-    private SimpleRep.ThrottledEvent position_event = new SimpleRep.ThrottledEvent ();
-    private SimpleRep.DeckStack stack;
 
     public MainWindow (Gtk.Application application) {
         Object (
@@ -37,37 +35,20 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
 
         instance = this;
         database = new SimpleRep.Database ();
-        var decks = database.get_decks ();
+
+        main_view = new SimpleRep.MainView (database);
 
         var header_bar = new SimpleRep.HeaderBar () {
-            can_add_card = decks.size > 0
+            can_add_card = database.get_deck_count () > 0
         };
-
-        deck_list = new SimpleRep.DeckList (database);
-        stack = new SimpleRep.DeckStack (database);
-        deck_list.item_renamed.connect ((deck) => { stack.update_deck (deck); });
-        deck_list.item_selected.connect ((item) => { stack.show_deck (((SimpleRep.DeckItem)item).deck); });
-        deck_list.root.child_added.connect ((item) => { stack.add_deck (((SimpleRep.DeckItem)item).deck); });
-        deck_list.root.child_removed.connect ((item) => { stack.remove_deck (((SimpleRep.DeckItem)item).deck); });
-
-        deck_list.root.child_added.connect (() => { header_bar.can_add_card = true; });
-        deck_list.root.child_removed.connect (() => { header_bar.can_add_card = (deck_list.root.n_children > 0); });
-
-        var paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
-        paned.position = SimpleRep.Application.settings.get_int ("divider-position");
-        paned.pack1 (deck_list, false, false);
-        paned.pack2 (stack, true, false);
+        database.deck_added.connect (() => { header_bar.can_add_card = true; });
+        database.deck_removed.connect (() => { header_bar.can_add_card = (database.get_deck_count () > 0); });
 
         set_titlebar (header_bar);
-        add (paned);
+        add (main_view);
 
-        header_bar.add_deck_clicked.connect (deck_list.add_deck);
+        header_bar.add_deck_clicked.connect (main_view.add_deck);
         header_bar.add_card_clicked.connect (create_card);
-
-        paned.notify["position"].connect (position_event.emit);
-        position_event.emitted.connect (() => {
-                SimpleRep.Application.settings.set_int ("divider-position", paned.position);
-        });
 
         resize_event.emitted.connect (() => {
             if (is_maximized) {
@@ -103,7 +84,7 @@ public class SimpleRep.MainWindow : Gtk.ApplicationWindow {
     }
 
     private void create_card () {
-        var deck_id = ((SimpleRep.DeckItem)deck_list.selected).deck.id;
+        var deck_id = main_view.selected_deck;
 
         var dialog = new SimpleRep.CreateCardDialog (this, deck_id);
         dialog.card_created.connect ((card) => {

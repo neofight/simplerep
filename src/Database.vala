@@ -27,6 +27,8 @@ public class SimpleRep.Database {
     public signal void card_removed (int64 card_id);
     public signal void card_saved (SimpleRep.Card card);
 
+    public signal void deck_added (SimpleRep.Deck deck);
+    public signal void deck_removed (int64 deck_id);
     public signal void deck_updated (SimpleRep.Deck deck);
 
     public Database () {
@@ -85,6 +87,7 @@ public class SimpleRep.Database {
         }
 
         deck.id = db.last_insert_rowid ();
+        deck_added (deck);
     }
 
     public SimpleRep.Card get_card (int64 card_id) {
@@ -153,6 +156,19 @@ public class SimpleRep.Database {
         };
     }
 
+    public int get_deck_count () {
+        const string SQL = "SELECT count(*) FROM decks;";
+
+        var stmt = prepare (SQL);
+
+        var result = stmt.step ();
+        if (result != Sqlite.ROW) {
+            SimpleRep.MainWindow.panic ("Error fetching deck count");
+        }
+
+        return stmt.column_int (0);
+    }
+
     public Gee.ArrayList<SimpleRep.Deck> get_decks () {
         const string SQL = """
             SELECT d.id, d.name, count(*) AS cards_total FROM decks d JOIN cards c ON d.id = c.deck_id
@@ -198,7 +214,7 @@ public class SimpleRep.Database {
         deck_updated (get_deck (card.deck_id));
     }
 
-    public void remove_deck (SimpleRep.Deck deck) {
+    public void remove_deck (SimpleRep.Deck deck) {       
         const string SQL = "DELETE FROM decks WHERE id = ?;";
 
         var stmt = prepare (SQL);
@@ -209,6 +225,8 @@ public class SimpleRep.Database {
         if (result != Sqlite.DONE) {
             SimpleRep.MainWindow.panic ("Unable to remove deck from database: " + db.errmsg ());
         }
+
+        deck_removed (deck.id);
     }
 
     public void save_card (SimpleRep.Card card) {
