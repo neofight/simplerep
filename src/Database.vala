@@ -136,7 +136,7 @@ public class SimpleRep.Database {
     public SimpleRep.Deck get_deck (int64 deck_id) {
         const string SQL = """
             SELECT d.id, d.name, count(*) AS cards_total FROM decks d JOIN cards c ON d.id = c.deck_id 
-            HERE d.id = ? GROUP BY d.id;""";
+            WHERE d.id = ? GROUP BY d.id;""";
 
         var stmt = prepare (SQL);
         stmt.bind_int64 (1, deck_id);
